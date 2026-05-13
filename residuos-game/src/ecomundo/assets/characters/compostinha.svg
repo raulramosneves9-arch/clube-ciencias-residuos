@@ -1,0 +1,73 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="100%" height="100%" id="compostinha-svg">
+  <defs>
+    <!-- Gradients -->
+    <linearGradient id="compo-body-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#EF9F27" />
+      <stop offset="100%" stop-color="#BA7517" />
+    </linearGradient>
+    <linearGradient id="compo-leaf-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#639922" />
+      <stop offset="100%" stop-color="#3B6D11" />
+    </linearGradient>
+  </defs>
+
+  <g id="compostinha-character">
+    <!-- Shadow -->
+    <ellipse cx="100" cy="180" rx="45" ry="10" fill="rgba(0,0,0,0.2)" />
+
+    <!-- Leaf Base / Wrap -->
+    <path id="compo-leaf" d="M 60 170 C 40 140, 40 90, 70 70 C 80 120, 110 150, 145 175 C 120 185, 80 185, 60 170 Z" fill="url(#compo-leaf-grad)" stroke="#3B6D11" stroke-width="2" />
+    <path id="compo-leaf-vein" d="M 65 165 C 75 140, 85 110, 75 90" fill="none" stroke="#3B6D11" stroke-width="2" opacity="0.4" />
+
+    <!-- Worm Body (Segmented) -->
+    <g id="compo-body" stroke="#BA7517" stroke-width="2">
+      <!-- Tail segment -->
+      <path d="M 100 165 C 130 165, 140 140, 130 120 C 120 100, 100 110, 95 130 C 90 150, 90 165, 100 165 Z" fill="url(#compo-body-grad)" />
+      
+      <!-- Middle segment -->
+      <ellipse cx="115" cy="115" rx="22" ry="20" fill="url(#compo-body-grad)" transform="rotate(-15 115 115)" />
+      
+      <!-- Upper segment -->
+      <ellipse cx="95" cy="95" rx="25" ry="22" fill="url(#compo-body-grad)" transform="rotate(10 95 95)" />
+
+      <!-- Head -->
+      <ellipse cx="100" cy="65" rx="32" ry="30" fill="url(#compo-body-grad)" />
+    </g>
+
+    <!-- Vegetal Antennas -->
+    <g id="compo-antennas" stroke="#639922" stroke-width="4" stroke-linecap="round" fill="none">
+      <!-- Left antenna -->
+      <path d="M 85 40 C 75 20, 55 15, 45 25" />
+      <!-- Left leaf tip -->
+      <path d="M 45 25 C 40 20, 35 25, 40 30 C 45 35, 50 30, 45 25 Z" fill="#639922" stroke="none" />
+
+      <!-- Right antenna -->
+      <path d="M 115 40 C 125 20, 145 15, 155 25" />
+      <!-- Right leaf tip -->
+      <path d="M 155 25 C 160 20, 165 25, 160 30 C 155 35, 150 30, 155 25 Z" fill="#639922" stroke="none" />
+    </g>
+
+    <!-- Face -->
+    <g id="compo-face">
+      <!-- Eyes (Happy/Cute) -->
+      <circle cx="85" cy="60" r="5" fill="#333" />
+      <circle cx="86" cy="58" r="2" fill="#FFF" />
+
+      <circle cx="115" cy="60" r="5" fill="#333" />
+      <circle cx="116" cy="58" r="2" fill="#FFF" />
+
+      <!-- Blush -->
+      <circle cx="72" cy="68" r="6" fill="#EF9F27" opacity="0.8" />
+      <circle cx="128" cy="68" r="6" fill="#EF9F27" opacity="0.8" />
+
+      <!-- Mouth (Talking/Happy) -->
+      <path d="M 92 72 Q 100 82 108 72" stroke="#333" stroke-width="3" fill="none" stroke-linecap="round" />
+    </g>
+    
+    <!-- Decorative soil/dirt lumps at base -->
+    <path d="M 80 175 Q 90 170 100 175 Q 110 165 120 175" stroke="#BA7517" stroke-width="3" fill="none" stroke-linecap="round" />
+    <circle cx="85" cy="170" r="2" fill="#BA7517" />
+    <circle cx="115" cy="172" r="2" fill="#BA7517" />
+    <circle cx="105" cy="178" r="1.5" fill="#BA7517" />
+  </g>
+</svg>

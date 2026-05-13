@@ -1,0 +1,86 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="100%" height="100%" id="recicla-svg">
+  <defs>
+    <!-- Gradients -->
+    <linearGradient id="recicla-body-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#3B6D11" />
+      <stop offset="50%" stop-color="#639922" />
+      <stop offset="100%" stop-color="#3B6D11" />
+    </linearGradient>
+    <linearGradient id="recicla-cape-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#C0DD97" />
+      <stop offset="100%" stop-color="#639922" />
+    </linearGradient>
+  </defs>
+
+  <g id="recicla-character">
+    <!-- Shadow -->
+    <ellipse cx="100" cy="180" rx="45" ry="10" fill="rgba(0,0,0,0.2)" />
+
+    <!-- Cape (animatable fluttering) -->
+    <path id="recicla-cape" d="M 60 70 Q 20 120 30 170 Q 100 150 170 170 Q 180 120 140 70 Z" fill="url(#recicla-cape-grad)" />
+
+    <!-- Legs -->
+    <g id="recicla-legs" stroke="#3B6D11" stroke-width="8" stroke-linecap="round" fill="none">
+      <path d="M 85 160 L 85 175" />
+      <path d="M 115 160 L 115 175" />
+    </g>
+    
+    <!-- Feet -->
+    <path d="M 75 175 L 95 175 A 5 5 0 0 0 85 165 Z" fill="#3B6D11" />
+    <path d="M 105 175 L 125 175 A 5 5 0 0 0 115 165 Z" fill="#3B6D11" />
+
+    <!-- Main Body (Recycling Bin) -->
+    <!-- Grooves on the bin -->
+    <rect x="65" y="70" width="70" height="90" rx="5" fill="url(#recicla-body-grad)" stroke="#3B6D11" stroke-width="3" />
+    <line x1="75" y1="110" x2="75" y2="150" stroke="#3B6D11" stroke-width="2" opacity="0.3" stroke-linecap="round"/>
+    <line x1="125" y1="110" x2="125" y2="150" stroke="#3B6D11" stroke-width="2" opacity="0.3" stroke-linecap="round"/>
+
+    <!-- Bin Lid / Head -->
+    <path d="M 55 70 C 55 45, 145 45, 145 70 Z" fill="#639922" stroke="#3B6D11" stroke-width="3" />
+    <!-- Lid handle -->
+    <rect x="90" y="42" width="20" height="8" rx="2" fill="#3B6D11" />
+
+    <!-- Face -->
+    <g id="recicla-face">
+      <!-- Eyebrows (Determined) -->
+      <path d="M 75 80 Q 85 85 95 85" stroke="#3B6D11" stroke-width="3" fill="none" stroke-linecap="round" />
+      <path d="M 125 80 Q 115 85 105 85" stroke="#3B6D11" stroke-width="3" fill="none" stroke-linecap="round" />
+
+      <!-- Eyes -->
+      <circle cx="85" cy="92" r="5" fill="#111" />
+      <circle cx="87" cy="90" r="2" fill="#FFF" />
+
+      <circle cx="115" cy="92" r="5" fill="#111" />
+      <circle cx="113" cy="90" r="2" fill="#FFF" />
+
+      <!-- Heroic Smile -->
+      <path d="M 90 102 Q 100 108 110 102" stroke="#3B6D11" stroke-width="3" fill="none" stroke-linecap="round" />
+      <!-- Cheek blushes -->
+      <circle cx="75" cy="98" r="4" fill="#C0DD97" opacity="0.7" />
+      <circle cx="125" cy="98" r="4" fill="#C0DD97" opacity="0.7" />
+    </g>
+
+    <!-- Recycle Symbol ♻ -->
+    <g id="recycle-logo" transform="translate(100, 135)" stroke="#C0DD97" stroke-width="4" fill="none" stroke-linejoin="round" stroke-linecap="round">
+      <path d="M -12 8 L 0 -12 L 12 8 Z" />
+      <!-- small arrow head details -->
+      <path d="M -2 -12 L -6 -6" />
+      <path d="M 12 8 L 4 8" />
+      <path d="M -12 8 L -10 2" />
+    </g>
+
+    <!-- Arms -->
+    <g id="recicla-arms" stroke="#639922" stroke-width="8" stroke-linecap="round" fill="none">
+      <!-- Left arm resting on hip -->
+      <path id="arm-left" d="M 62 100 Q 40 100 50 120 Q 60 130 65 125" />
+      <!-- Right arm raising / heroic pose -->
+      <path id="arm-right" d="M 138 100 Q 160 90 150 70" />
+    </g>
+    
+    <!-- Hands -->
+    <!-- Left Hand -->
+    <circle cx="65" cy="125" r="7" fill="#3B6D11" />
+    <!-- Right Hand (Fist) -->
+    <circle cx="150" cy="70" r="8" fill="#3B6D11" />
+  </g>
+</svg>
