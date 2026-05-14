@@ -6,7 +6,8 @@ const GamePuzzle = {
     chapter: null,
     combo: 0,
     score: 0,
-    marHealth: 50, // 0 a 100
+    marHealth: 100, // 0 a 100
+    lixaoThreat: 100, // 100 a 0 (vida do vilão)
     isPlaying: false,
     bossTimer: null,
     itemsToSpawn: 0,
@@ -63,6 +64,8 @@ const GamePuzzle = {
         this.itemsToSpawn = this.config.maxItems;
         this.combo = 0;
         this.score = 0;
+        this.marHealth = 100;
+        this.lixaoThreat = 100;
         this.isPlaying = true;
         this.activeItems = [];
         
@@ -337,6 +340,7 @@ const GamePuzzle = {
         const points = 10 * multiplier;
         this.score += points;
         this.marHealth = Math.min(100, this.marHealth + 2); // Mar melhora levemente
+        this.lixaoThreat = Math.max(0, this.lixaoThreat - 5); // Lixão perde "vida"
         
         binEl.classList.add('anim-pulse');
         setTimeout(() => binEl.classList.remove('anim-pulse'), 500);
@@ -381,6 +385,7 @@ const GamePuzzle = {
         if (typeof GameHUD !== 'undefined') {
             GameHUD.update({
                 marHealth: this.marHealth,
+                lixaoThreat: this.lixaoThreat,
                 score: this.score,
                 combo: this.combo,
                 itemsLeft: this.itemsToSpawn
