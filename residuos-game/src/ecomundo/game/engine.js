@@ -3,18 +3,19 @@
 const GameEngine = {
     STATES: {
         MENU: 'MENU',
+        USERNAME: 'USERNAME',
         NARRATIVE: 'NARRATIVE',
         PUZZLE: 'PUZZLE',
         RESULTS: 'RESULTS',
         GAMEOVER: 'GAMEOVER'
     },
-    
+
     currentState: null,
 
     init() {
         console.log("GameEngine inicializada.");
         this.changeState(this.STATES.MENU);
-        
+
         // requestAnimationFrame(this.loop.bind(this)); // Loop principal se necessário futuramente
     },
 
@@ -35,16 +36,19 @@ const GameEngine = {
 
         // Efeito de transição de fade (T-405)
         container.classList.add('fade-out');
-        
+
         setTimeout(() => {
             container.innerHTML = ''; // Limpa tela
-            
+
             // Esconde HUD por padrão
             if (typeof GameHUD !== 'undefined') GameHUD.hide();
 
             switch (this.currentState) {
                 case this.STATES.MENU:
                     this.renderMenu(container);
+                    break;
+                case this.STATES.USERNAME:
+                    this.renderUsername(container);
                     break;
                 case this.STATES.NARRATIVE:
                     if (typeof GameNarrative !== 'undefined') {
@@ -68,7 +72,7 @@ const GameEngine = {
                     this.renderGameOver(container);
                     break;
             }
-            
+
             container.classList.remove('fade-out');
             container.classList.add('fade-in');
             setTimeout(() => container.classList.remove('fade-in'), 500);
@@ -89,11 +93,41 @@ const GameEngine = {
                     <div class="menu-buttons">
                         <button class="btn-primary" onclick="GameEngine.startGame()">Jogar</button>
                         ${GameState.data.currentChapter > 1 ? `<button class="btn-secondary" onclick="GameEngine.continueGame()">Continuar</button>` : ''}
+                        <button class="btn-secondary" onclick="GameEngine.showRanking()">Ver Ranking</button>
                         <button class="btn-secondary" onclick="alert('EcoMundo - Jogo Educativo de Triagem de Resíduos')">Sobre</button>
                     </div>
                 </div>
             </div>
         `;
+    },
+
+    renderUsername(container) {
+        container.innerHTML = `
+            <div class="screen-username slide-in">
+                <div class="username-card">
+                    <h2>Bem-vindo ao EcoMundo!</h2>
+                    <p>Digite seu nome para começar a salvar o planeta:</p>
+                    <input type="text" id="username-input" class="username-input" placeholder="Digite seu nome..." maxlength="20" autocomplete="off">
+                    <div class="username-buttons">
+                        <button class="btn-primary" onclick="GameEngine.confirmUsername()">Começar Jogo</button>
+                        <button class="btn-secondary" onclick="GameEngine.changeState(GameEngine.STATES.MENU)">Voltar</button>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        // Focus no input e permite Enter para confirmar
+        setTimeout(() => {
+            const input = document.getElementById('username-input');
+            if (input) {
+                input.focus();
+                input.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        GameEngine.confirmUsername();
+                    }
+                });
+            }
+        }, 100);
     },
 
     renderResults(container) {
@@ -116,16 +150,32 @@ const GameEngine = {
     },
 
     renderGameOver(container) {
+        // Registra o score no ranking
+        const username = GameState.getUsername();
+        const score = GameState.data.totalScore;
+        const position = GameLeaderboard.getPosition(score);
+
+        GameLeaderboard.addScore(username, score);
+
+        let positionMessage = '';
+        if (position && position <= 3) {
+            positionMessage = `🏆 Você ficou em ${position}º lugar no ranking!`;
+        } else if (position && position <= 10) {
+            positionMessage = `🎉 Você entrou no top 10! Posição: ${position}º lugar`;
+        }
+
         container.innerHTML = `
             <div class="screen-gameover slide-in">
                 <h2>O Mundo Está Salvo!</h2>
                 <p>O Mar está completamente saudável, a Recicla comemora e o Lixão foi derrotado!</p>
                 <div class="impact-summary">
                     <p>Você destinou corretamente muitos resíduos!</p>
-                    <h3>Pontuação Final: ${GameState.data.totalScore}</h3>
+                    <h3>Pontuação Final: ${score}</h3>
+                    <p style="color: #2E7D32; font-size: 1.1rem; font-weight: bold;">${positionMessage || '✨ Obrigado por jogar! ✨'}</p>
                 </div>
                 <div class="menu-buttons">
                     <button class="btn-primary" onclick="GameEngine.share()">Compartilhar Vitória</button>
+                    <button class="btn-secondary" onclick="GameEngine.showRanking()">Ver Ranking</button>
                     <button class="btn-secondary" onclick="GameEngine.resetGame()">Jogar Novamente</button>
                     <a href="https://sinir.gov.br/" target="_blank" class="btn-link">Aprenda mais sobre Reciclagem no Brasil</a>
                 </div>
@@ -136,7 +186,7 @@ const GameEngine = {
     startGame() {
         GameState.reset();
         if (typeof GameAudio !== 'undefined') GameAudio.startMusic();
-        this.changeState(this.STATES.NARRATIVE);
+        this.changeState(this.STATES.USERNAME);
     },
 
     continueGame() {
@@ -166,12 +216,52 @@ const GameEngine = {
     },
 
     share() {
-        const text = `Eu ajudei a salvar o Mar no EcoMundo com ${GameState.data.totalScore} pontos! Jogue também e aprenda sobre reciclagem!`;
+        const username = GameState.getUsername();
+        const score = GameState.data.totalScore;
+        const text = `Sou ${username} e ajudei a salvar o Mar no EcoMundo com ${score} pontos! 🌍♻️ Jogue também e aprenda sobre reciclagem!`;
         navigator.clipboard.writeText(text).then(() => {
             alert('Texto copiado para a área de transferência!');
         }).catch(err => {
             alert('Falha ao copiar texto.');
         });
+    },
+
+    confirmUsername() {
+        const input = document.getElementById('username-input');
+        const username = input ? input.value.trim() : '';
+
+        if (username === '') {
+            alert('Por favor, digite seu nome para continuar!');
+            return;
+        }
+
+        GameState.setUsername(username);
+        this.changeState(this.STATES.NARRATIVE);
+    },
+
+    showRanking() {
+        const container = document.getElementById('game-container');
+        if (!container) return;
+
+        container.classList.add('fade-out');
+
+        setTimeout(() => {
+            container.innerHTML = `
+                <div class="screen-ranking slide-in">
+                    <h2>🏆 Ranking de Pontuação 🏆</h2>
+                    <div class="ranking-content">
+                        ${GameLeaderboard.getHTML()}
+                    </div>
+                    <div class="menu-buttons">
+                        <button class="btn-secondary" onclick="GameEngine.changeState(GameEngine.STATES.MENU)">Voltar ao Menu</button>
+                    </div>
+                </div>
+            `;
+
+            container.classList.remove('fade-out');
+            container.classList.add('fade-in');
+            setTimeout(() => container.classList.remove('fade-in'), 500);
+        }, 300);
     },
 
     loop(timestamp) {

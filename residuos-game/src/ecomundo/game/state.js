@@ -5,6 +5,7 @@ const STORAGE_KEY = 'ecomundo_save';
 const defaultState = {
     currentChapter: 1,
     totalScore: 0,
+    currentUsername: '',
     settings: {
         soundEnabled: true,
         musicEnabled: true
@@ -20,8 +21,8 @@ const GameState = {
             const saved = localStorage.getItem(STORAGE_KEY);
             if (saved) {
                 // Merge para garantir que novas propriedades do defaultState existam em saves antigos
-                this.data = { 
-                    ...defaultState, 
+                this.data = {
+                    ...defaultState,
                     ...JSON.parse(saved),
                     settings: { ...defaultState.settings, ...(JSON.parse(saved).settings || {}) }
                 };
@@ -57,6 +58,17 @@ const GameState = {
     updateSettings(key, value) {
         this.data.settings[key] = value;
         this.save();
+    },
+
+    // Define o username do jogador atual
+    setUsername(username) {
+        this.data.currentUsername = username.trim();
+        this.save();
+    },
+
+    // Retorna o username atual
+    getUsername() {
+        return this.data.currentUsername;
     }
 };
 
