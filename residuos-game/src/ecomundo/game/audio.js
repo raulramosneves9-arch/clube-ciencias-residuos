@@ -18,7 +18,7 @@ const GameAudio = {
         }
     },
 
-    playTone(freq, type, duration, vol = 5.5) {
+    playTone(freq, type, duration, vol = 5.5) { //a
         if (!GameState.data.settings.soundEnabled) return;
         this.init();
         this.resume();
