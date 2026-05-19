@@ -14,6 +14,12 @@ const GameEngine = {
 
     init() {
         console.log("GameEngine inicializada.");
+
+        // Carrega o leaderboard do localStorage
+        if (typeof GameLeaderboard !== 'undefined') {
+            GameLeaderboard.load();
+        }
+
         this.changeState(this.STATES.MENU);
 
         // requestAnimationFrame(this.loop.bind(this)); // Loop principal se necessário futuramente
@@ -153,9 +159,12 @@ const GameEngine = {
         // Registra o score no ranking
         const username = GameState.getUsername();
         const score = GameState.data.totalScore;
-        const position = GameLeaderboard.getPosition(score);
+        let position = null;
 
-        GameLeaderboard.addScore(username, score);
+        if (typeof GameLeaderboard !== 'undefined') {
+            position = GameLeaderboard.getPosition(score);
+            GameLeaderboard.addScore(username, score);
+        }
 
         let positionMessage = '';
         if (position && position <= 3) {
@@ -246,11 +255,15 @@ const GameEngine = {
         container.classList.add('fade-out');
 
         setTimeout(() => {
+            const leaderboardHTML = typeof GameLeaderboard !== 'undefined'
+                ? GameLeaderboard.getHTML()
+                : '<p style="text-align: center; color: #999;">Leaderboard não carregado.</p>';
+
             container.innerHTML = `
                 <div class="screen-ranking slide-in">
                     <h2>🏆 Ranking de Pontuação 🏆</h2>
                     <div class="ranking-content">
-                        ${GameLeaderboard.getHTML()}
+                        ${leaderboardHTML}
                     </div>
                     <div class="menu-buttons">
                         <button class="btn-secondary" onclick="GameEngine.changeState(GameEngine.STATES.MENU)">Voltar ao Menu</button>
