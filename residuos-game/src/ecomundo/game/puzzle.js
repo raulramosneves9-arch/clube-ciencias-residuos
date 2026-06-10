@@ -4,6 +4,9 @@ const GamePuzzle = {
     activeItems: [],
     config: null,
     chapter: null,
+    chapterScene: null,
+    chapterTitle: '',
+    chapterDescription: '',
     combo: 0,
     score: 0,
     marHealth: 100, // 0 a 100
@@ -11,6 +14,13 @@ const GamePuzzle = {
     isPlaying: false,
     bossTimer: null,
     itemsToSpawn: 0,
+    requiredScore: 0,
+    requiredMarHealth: 0,
+    requiredSuccessRate: 0,
+    successfulDrops: 0,
+    totalDrops: 0,
+    slowEffectUntil: 0,
+    powerupTypes: ['powerup_combo', 'powerup_shield', 'powerup_slow'],
     
     // Configurações por capítulo (T-303)
     difficulty: {
@@ -43,10 +53,9 @@ const GamePuzzle = {
 
     start(chapterNumber) {
         this.chapter = 'cap' + chapterNumber;
-        
-        // T-303: Tenta carregar config externa do chapters.js
-        const externalData = window.ChaptersData && window.ChaptersData[this.chapter] ? window.ChaptersData[this.chapter].puzzles : null;
-        
+        const chapterData = window.ChaptersData && window.ChaptersData[this.chapter] ? window.ChaptersData[this.chapter] : null;
+        const externalData = chapterData && chapterData.puzzles ? chapterData.puzzles : null;
+
         if (externalData) {
             this.config = {
                 types: externalData.itemTypes,
@@ -56,10 +65,20 @@ const GamePuzzle = {
                 isBoss: externalData.bossMechanic || false,
                 bins: externalData.itemTypes
             };
+            this.requiredScore = externalData.requiredScore || 0;
+            this.requiredMarHealth = externalData.requiredMarHealth || 0;
+            this.requiredSuccessRate = externalData.requiredSuccessRate || 0;
         } else {
             this.config = this.difficulty[this.chapter] || this.difficulty['cap1'];
             this.config.spawnBatch = this.config.spawnBatch || 1;
+            this.requiredScore = 0;
+            this.requiredMarHealth = 0;
+            this.requiredSuccessRate = 0;
         }
+
+        this.chapterScene = chapterData ? chapterData.scene : 'cidade';
+        this.chapterTitle = chapterData ? chapterData.title : `Capítulo ${chapterNumber}`;
+        this.chapterDescription = chapterData ? chapterData.description || '' : '';
 
         this.itemsToSpawn = this.config.maxItems;
         this.combo = 0;
@@ -68,7 +87,10 @@ const GamePuzzle = {
         this.lixaoThreat = 100;
         this.isPlaying = true;
         this.activeItems = [];
-        
+        this.successfulDrops = 0;
+        this.totalDrops = 0;
+        this.slowEffectUntil = 0;
+
         this.renderPuzzleUI();
         this.spawnNextItem();
 
@@ -79,11 +101,16 @@ const GamePuzzle = {
 
     renderPuzzleUI() {
         const container = document.getElementById('game-container');
-        // T-302: Sistema de Lixeiras visíveis
+        const backgroundImage = `linear-gradient(180deg, rgba(0,0,0,0.35), rgba(0,0,0,0.05)), url('assets/scenes/${this.chapterScene}.svg')`;
+
         container.innerHTML = `
-            <div id="puzzle-area" style="position: relative; width: 100%; height: 100%; background: #e0f7fa; overflow: hidden;">
-                <div id="spawn-area" style="position: absolute; top: 80px; left: 0; right: 0; bottom: 180px; pointer-events: none;"></div>
-                <div id="bins-area" style="position: absolute; bottom: 30px; left: 0; right: 0; display: flex; justify-content: center; gap: 15px; padding: 0 20px; flex-wrap: wrap;">
+            <div id="puzzle-area" style="position: relative; width: 100%; height: 100%; background: ${backgroundImage}; background-size: cover; background-position: center; overflow: hidden;">
+                <div class="puzzle-chapter-banner">
+                    <h2>${this.chapterTitle}</h2>
+                    <p>${this.chapterDescription}</p>
+                </div>
+                <div id="spawn-area" style="position: absolute; top: 180px; left: 0; right: 0; bottom: 220px; pointer-events: none; z-index: 1;"></div>
+                <div id="bins-area" style="position: absolute; bottom: 30px; left: 0; right: 0; display: flex; justify-content: center; gap: 15px; padding: 0 20px; flex-wrap: wrap; z-index: 2;">
                 </div>
             </div>
         `;
@@ -133,18 +160,22 @@ const GamePuzzle = {
         });
     },
 
-    spawnItem(isBossThrow = false) {
+    spawnItem(isBossThrow = false, forcePowerup = false) {
         if (!this.isPlaying) return;
-        
-        const type = this.config.types[Math.floor(Math.random() * this.config.types.length)];
+
+        const isPowerup = forcePowerup || (this.chapter !== 'cap1' && Math.random() < 0.10);
+        const type = isPowerup
+            ? this.powerupTypes[Math.floor(Math.random() * this.powerupTypes.length)]
+            : this.config.types[Math.floor(Math.random() * this.config.types.length)];
+
         const itemEl = document.createElement('div');
         itemEl.className = 'puzzle-item anim-idle';
         itemEl.dataset.type = type;
-        
-        itemEl.style.width = '60px';
-        itemEl.style.height = '60px';
-        itemEl.style.backgroundColor = this.binColors[type]; // Cor de fallback
-        itemEl.style.backgroundImage = `url('${this.itemIcons[type]}')`;
+
+        itemEl.style.width = isPowerup ? '70px' : '60px';
+        itemEl.style.height = isPowerup ? '70px' : '60px';
+        itemEl.style.backgroundColor = isPowerup ? '#FFD54F' : this.binColors[type];
+        itemEl.style.backgroundImage = isPowerup ? 'none' : `url('${this.itemIcons[type]}')`;
         itemEl.style.backgroundSize = 'contain';
         itemEl.style.backgroundRepeat = 'no-repeat';
         itemEl.style.backgroundPosition = 'center';
@@ -155,12 +186,23 @@ const GamePuzzle = {
         itemEl.style.border = '2px solid #fff';
         itemEl.style.boxShadow = '0 4px 8px rgba(0,0,0,0.3)';
         itemEl.style.touchAction = 'none'; // Mobile touch fix
-        
-        // Acessibilidade
+
+        if (isPowerup) {
+            itemEl.style.color = '#212121';
+            itemEl.style.fontWeight = '900';
+            itemEl.style.fontSize = '24px';
+            itemEl.style.display = 'flex';
+            itemEl.style.alignItems = 'center';
+            itemEl.style.justifyContent = 'center';
+            itemEl.textContent = type === 'powerup_combo' ? '⚡' : type === 'powerup_shield' ? '🛡️' : '🐢';
+            itemEl.setAttribute('aria-label', 'Item especial de suporte');
+        } else {
+            itemEl.setAttribute('aria-label', 'Resíduo tipo ' + type);
+        }
+
         itemEl.tabIndex = 0;
         itemEl.setAttribute('role', 'button');
-        itemEl.setAttribute('aria-label', 'Resíduo tipo ' + type);
-        
+
         itemEl.addEventListener('keydown', (e) => {
             if (e.key === 'Enter' || e.key === ' ') {
                 e.preventDefault();
@@ -171,14 +213,14 @@ const GamePuzzle = {
                 itemEl.style.boxShadow = '0 0 15px 5px #FFEB3B'; // highlight
             }
         });
-        
+
         const spawnArea = document.getElementById('spawn-area');
         const maxLeft = spawnArea.clientWidth - 70;
         const maxTop = spawnArea.clientHeight - 70;
-        
+
         let startLeft = Math.random() * maxLeft;
         let startTop = Math.random() * (maxTop / 2); // spawna na metade superior
-        
+
         if (isBossThrow) {
             startLeft = maxLeft / 2; // Boss joga do centro
             itemEl.classList.add('anim-bounce');
@@ -186,17 +228,17 @@ const GamePuzzle = {
 
         itemEl.style.left = startLeft + 'px';
         itemEl.style.top = startTop + 'px';
+        itemEl.style.zIndex = 5;
 
         spawnArea.appendChild(itemEl);
         
         this.setupDrag(itemEl);
         
-        if (!isBossThrow) {
+        if (!isBossThrow && !isPowerup) {
             this.itemsToSpawn--;
             this.updateHUD();
         }
 
-        // T-303: Movimentação leve dependendo do capítulo
         if (['cap3', 'cap4', 'cap5'].includes(this.chapter)) {
             this.animateItem(itemEl);
         }
@@ -310,7 +352,9 @@ const GamePuzzle = {
         const binType = binEl.dataset.type;
         
         // T-301: Validação
-        if (itemType === binType) {
+        if (itemType.startsWith('powerup_')) {
+            this.handlePowerup(itemEl, itemType, binEl);
+        } else if (itemType === binType) {
             this.handleSuccess(itemEl, binEl);
         } else {
             this.handleError(itemEl, binEl);
@@ -320,6 +364,31 @@ const GamePuzzle = {
         itemEl.remove();
         
         this.checkEndCondition();
+    },
+
+    handlePowerup(itemEl, powerupType, binEl) {
+        this.totalDrops += 1;
+        this.successfulDrops += 1;
+        let bonus = 0;
+
+        if (powerupType === 'powerup_combo') {
+            bonus = 25;
+            this.combo = Math.max(this.combo, 3);
+            this.showFloatingText('COMBO BOOST!', itemEl.getBoundingClientRect(), '#FF9800');
+        } else if (powerupType === 'powerup_shield') {
+            bonus = 20;
+            this.marHealth = Math.min(100, this.marHealth + 12);
+            this.showFloatingText('Escudo! +12%', itemEl.getBoundingClientRect(), '#4CAF50');
+        } else if (powerupType === 'powerup_slow') {
+            bonus = 15;
+            this.slowEffectUntil = Date.now() + 6000;
+            this.showFloatingText('Tempo Estendido!', itemEl.getBoundingClientRect(), '#03A9F4');
+        }
+
+        this.score += bonus;
+        this.updateHUD();
+        if (window.GameAudio) GameAudio.playSuccess();
+        this.showFloatingText(`+${bonus}`, itemEl.getBoundingClientRect(), '#FFFFFF');
     },
 
     checkEndCondition() {
@@ -333,6 +402,8 @@ const GamePuzzle = {
     handleSuccess(itemEl, binEl) {
         // T-304: Sistema de combo
         this.combo++;
+        this.totalDrops += 1;
+        this.successfulDrops += 1;
         let multiplier = 1;
         if (this.combo >= 5) multiplier = 3;
         else if (this.combo >= 3) multiplier = 2;
@@ -357,11 +428,12 @@ const GamePuzzle = {
         }
 
         if (this.combo === 5) {
-            this.showFloatingText('COMBO MAX!', document.getElementById('score-display').getBoundingClientRect(), '#FFC107');
+            this.showFloatingText('COMBO MAX!', document.getElementById('hud-score-value').getBoundingClientRect(), '#FFC107');
         }
     },
 
     handleError(itemEl, binEl, droppedOffscreen = false) {
+        this.totalDrops += 1;
         // T-304: Erro quebra o combo
         this.combo = 0;
         this.marHealth = Math.max(0, this.marHealth - 5); // Penalidade leve
@@ -391,6 +463,32 @@ const GamePuzzle = {
                 itemsLeft: this.itemsToSpawn
             });
         }
+    },
+
+    determinePass() {
+        if (this.config.isBoss) {
+            return this.lixaoThreat === 0;
+        }
+
+        const successRate = this.totalDrops === 0 ? 1 : (this.successfulDrops / this.totalDrops);
+        if (this.requiredScore && this.score < this.requiredScore) return false;
+        if (this.requiredMarHealth && this.marHealth < this.requiredMarHealth) return false;
+        if (this.requiredSuccessRate && successRate < this.requiredSuccessRate) return false;
+        return true;
+    },
+
+    getPassFeedback() {
+        if (this.config.isBoss) {
+            return this.lixaoThreat === 0
+                ? 'Você derrotou o Lixão e salvou o EcoMundo!'
+                : 'O Lixão ainda está forte. Tente novamente para vencê-lo!';
+        }
+
+        const successRate = this.totalDrops === 0 ? 1 : (this.successfulDrops / this.totalDrops);
+        if (this.score < this.requiredScore) return `Você precisa de pelo menos ${this.requiredScore} pontos.`;
+        if (this.marHealth < this.requiredMarHealth) return `O Mar precisa estar com ao menos ${this.requiredMarHealth}% de saúde.`;
+        if (this.requiredSuccessRate && successRate < this.requiredSuccessRate) return `Acertos insuficientes: ${(successRate*100).toFixed(0)}%.`; 
+        return 'Parabéns! Você completou o capítulo com sucesso.';
     },
 
     showFloatingText(text, rect, color) {
@@ -424,13 +522,18 @@ const GamePuzzle = {
             if (this.config.speed === 'medium') delay = 800;
             if (this.config.speed === 'fast') delay = 500;
             if (this.config.speed === 'very-fast') delay = 300;
+            if (Date.now() < this.slowEffectUntil) {
+                delay *= 1.8;
+            }
             
             setTimeout(() => {
                 if (this.isPlaying) {
-                    // Spawna múltiplos itens se configurado (T-303)
                     const batchSize = Math.min(this.config.spawnBatch || 1, this.itemsToSpawn);
                     for (let i = 0; i < batchSize; i++) {
                         this.spawnItem();
+                    }
+                    if (this.chapter !== 'cap1' && Math.random() < 0.25) {
+                        this.spawnItem(false, true);
                     }
                 }
             }, delay);
@@ -454,8 +557,19 @@ const GamePuzzle = {
         
         GameState.data.totalScore += this.score;
         GameState.save();
-        
-        console.log(`Capítulo concluído! Pontos: ${this.score}, Saúde final do Mar: ${this.marHealth}%`);
+
+        const passed = this.determinePass();
+        const feedback = this.getPassFeedback();
+        GameEngine.lastPuzzleOutcome = {
+            passed,
+            chapter: this.chapter,
+            score: this.score,
+            marHealth: this.marHealth,
+            successRate: this.totalDrops === 0 ? 1 : (this.successfulDrops / this.totalDrops),
+            feedback
+        };
+
+        console.log(`Capítulo concluído! Pontos: ${this.score}, Saúde final do Mar: ${this.marHealth}%, Passou: ${passed}`);
         GameEngine.changeState(GameEngine.STATES.RESULTS);
     }
 };

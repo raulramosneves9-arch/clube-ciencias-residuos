@@ -559,6 +559,49 @@ body {
     width: 100%;
 }
 
+.puzzle-chapter-banner {
+    position: absolute;
+    top: 120px;
+    left: 24px;
+    right: 24px;
+    background: rgba(0, 0, 0, 0.55);
+    border: 2px solid rgba(255, 255, 255, 0.18);
+    border-radius: 18px;
+    backdrop-filter: blur(10px);
+    color: white;
+    padding: 18px 24px;
+    z-index: 11;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+}
+
+.puzzle-chapter-banner h2 {
+    margin: 0;
+    font-size: 2rem;
+    letter-spacing: 1px;
+}
+
+.puzzle-chapter-banner p {
+    margin: 8px 0 0;
+    font-size: 1rem;
+    max-width: 760px;
+    line-height: 1.4;
+    opacity: 0.95;
+}
+
+.puzzle-item {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    z-index: 5;
+}
+
+.puzzle-item:hover {
+    transform: translateY(-5px);
+}
+
+.puzzle-item[aria-label*="especial"] {
+    border-color: #fff176;
+    box-shadow: 0 6px 18px rgba(255, 241, 118, 0.45);
+}
+
 /* Tela de Ranking (Ranking) */
 .screen-ranking {
     display: flex;

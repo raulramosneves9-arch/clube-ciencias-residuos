@@ -138,18 +138,29 @@ const GameEngine = {
 
     renderResults(container) {
         const fact = "Dica: Reciclar 1 tonelada de papel poupa 22 árvores e economiza 71% de energia elétrica!"; // Fato educativo
+        const outcome = this.lastPuzzleOutcome || { passed: true, feedback: 'Capítulo concluído!' };
+        const resultTitle = outcome.passed ? 'Capítulo Concluído!' : 'Capítulo Incompleto';
+        const resultState = outcome.passed ? '✅' : '⚠️';
+        const actionButton = outcome.passed
+            ? `<button class="btn-primary" onclick="GameEngine.nextChapter()">Próximo Capítulo</button>`
+            : `<button class="btn-primary" onclick="GameEngine.retryChapter()">Tentar Novamente</button>`;
+
         container.innerHTML = `
             <div class="screen-results slide-in">
-                <h2>Capítulo Concluído!</h2>
+                <h2>${resultState} ${resultTitle}</h2>
                 <div class="results-stats">
-                    <p>Pontuação: <span>${GameState.data.totalScore}</span></p>
+                    <p>Pontuação no capítulo: <span>${outcome.score || 0}</span></p>
+                    <p>Saúde do Mar: <span>${outcome.marHealth || 0}%</span></p>
+                    <p>Acertos: <span>${Math.round((outcome.successRate || 0) * 100)}%</span></p>
                     <img src="assets/characters/mar.svg" class="mar-result anim-bounce" alt="Mar Feliz" onerror="this.style.display='none'">
                 </div>
                 <div class="educational-fact">
+                    <p><strong>${outcome.feedback}</strong></p>
                     <p><strong>Você Sabia?</strong> ${fact}</p>
                 </div>
                 <div class="menu-buttons">
-                    <button class="btn-primary" onclick="GameEngine.nextChapter()">Próximo Capítulo</button>
+                    ${actionButton}
+                    <button class="btn-secondary" onclick="GameEngine.changeState(GameEngine.STATES.MENU)">Voltar ao Menu</button>
                 </div>
             </div>
         `;
@@ -208,7 +219,6 @@ const GameEngine = {
         if (GameState.data.currentChapter > 5) {
             this.changeState(this.STATES.GAMEOVER);
         } else {
-            // Transição de varredura verde (T-405)
             const sweep = document.createElement('div');
             sweep.className = 'green-sweep';
             document.body.appendChild(sweep);
@@ -217,6 +227,10 @@ const GameEngine = {
                 setTimeout(() => sweep.remove(), 1000);
             }, 500);
         }
+    },
+
+    retryChapter() {
+        this.changeState(this.STATES.NARRATIVE);
     },
 
     resetGame() {
