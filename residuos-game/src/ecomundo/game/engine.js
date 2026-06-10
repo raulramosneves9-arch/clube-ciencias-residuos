@@ -7,7 +7,8 @@ const GameEngine = {
         NARRATIVE: 'NARRATIVE',
         PUZZLE: 'PUZZLE',
         RESULTS: 'RESULTS',
-        GAMEOVER: 'GAMEOVER'
+        GAMEOVER: 'GAMEOVER',
+        ABOUT: 'ABOUT'
     },
 
     currentState: null,
@@ -77,6 +78,9 @@ const GameEngine = {
                 case this.STATES.GAMEOVER:
                     this.renderGameOver(container);
                     break;
+                case this.STATES.ABOUT:
+                    this.renderAbout(container);
+                    break;
             }
 
             container.classList.remove('fade-out');
@@ -100,7 +104,7 @@ const GameEngine = {
                         <button class="btn-primary" onclick="GameEngine.startGame()">Jogar</button>
                         ${GameState.data.currentChapter > 1 ? `<button class="btn-secondary" onclick="GameEngine.continueGame()">Continuar</button>` : ''}
                         <button class="btn-secondary" onclick="GameEngine.showRanking()">Ver Ranking</button>
-                        <button class="btn-secondary" onclick="alert('EcoMundo - Jogo Educativo de Triagem de Resíduos')">Sobre</button>
+                        <button class="btn-secondary" onclick="GameEngine.changeState(GameEngine.STATES.ABOUT)">Sobre</button>
                     </div>
                 </div>
             </div>
@@ -289,6 +293,52 @@ const GameEngine = {
             container.classList.add('fade-in');
             setTimeout(() => container.classList.remove('fade-in'), 500);
         }, 300);
+    },
+
+    renderAbout(container) {
+        container.innerHTML = `
+            <div class="screen-about slide-in">
+                <div class="about-card">
+                    <h2>📚 Sobre o Clube de Ciências</h2>
+                    
+                    <div class="about-section">
+                        <h3>🏫 Nome do Clube</h3>
+                        <p><em>EcoCientistas Visionários</em></p>
+                    </div>
+
+                    <div class="about-section">
+                        <h3>📖 Sobre Nós</h3>
+                        <p><em>Somos um grupo de estudantes apaixonados por ciência e sustentabilidade, dedicados a promover a conscientização ambiental através de atividades práticas e educativas.</em></p>
+                    </div>
+
+                    <div class="about-section">
+                        <h3>👥 Membros</h3>
+                        <p><em>Raul, Rafaela, Laura, Ana Carolina, Bianca e Fernanda</em></p>
+                    </div>
+
+                    <div class="about-section">
+                        <h3>🎯 Nossas Atividades</h3>
+                        <p><em>[Descreva aqui as principais atividades, projetos e iniciativas do seu clube. Pode incluir workshops, palestras, pesquisas, etc.]</em></p>
+                    </div>
+
+                    <div class="about-section">
+                        <h3>📞 Contato</h3>
+                        <p><em>Email: [seu-email@exemplo.com]</em></p>
+                        <p><em>Telefone: [seu-telefone]</em></p>
+                        <p><em>Rede Social: [link para suas redes sociais]</em></p>
+                    </div>
+
+                    <div class="about-section">
+                        <h3>🌱 Sustentabilidade</h3>
+                        <p><em>[Descreva aqui como o seu clube contribui para a sustentabilidade e educação ambiental. Por exemplo: "O EcoMundo foi desenvolvido como um projeto do nosso clube para conscientizar sobre a importância da reciclagem e do descarte correto de resíduos." ]</em></p>
+                    </div>
+
+                    <div class="menu-buttons">
+                        <button class="btn-secondary" onclick="GameEngine.changeState(GameEngine.STATES.MENU)">Voltar ao Menu</button>
+                    </div>
+                </div>
+            </div>
+        `;
     },
 
     loop(timestamp) {
