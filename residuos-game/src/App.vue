@@ -1,5 +1,6 @@
 <script setup>
 import { onMounted, ref } from 'vue'
+import GameViewport from './ecomundo/ui/GameViewport.vue'
 
 const tips = [
   "Dica: Lave as embalagens antes de descartar no reciclável!",
@@ -10,8 +11,59 @@ const tips = [
 
 const randomTip = ref(tips[Math.floor(Math.random() * tips.length)])
 const isLoading = ref(true)
+const themeClass = ref('')
+const gameScreen = ref({ type: 'NONE' })
+
+function setGameScreen(screen) {
+  gameScreen.value = screen || { type: 'NONE' }
+}
+
+function handleViewportAction(action) {
+  const engine = window.GameEngine
+  if (!engine) return
+
+  switch (action) {
+    case 'startGame':
+      engine.startGame()
+      break
+    case 'continueGame':
+      engine.continueGame()
+      break
+    case 'showRanking':
+      engine.showRanking()
+      break
+    case 'about':
+      engine.changeState(engine.STATES.ABOUT)
+      break
+    case 'confirmUsername':
+      engine.confirmUsername()
+      break
+    case 'backToMenu':
+      engine.changeState(engine.STATES.MENU)
+      break
+    case 'nextChapter':
+      engine.nextChapter()
+      break
+    case 'retryChapter':
+      engine.retryChapter()
+      break
+    case 'resetGame':
+      engine.resetGame()
+      break
+    case 'share':
+      engine.share()
+      break
+    default:
+      break
+  }
+}
 
 onMounted(() => {
+  window.EcoViewController = {
+    setScreen: setGameScreen,
+    clearScreen: () => setGameScreen({ type: 'NONE' })
+  }
+
   const initGame = () => {
     setTimeout(() => {
       isLoading.value = false
@@ -44,6 +96,7 @@ onMounted(() => {
 
     <!-- Container do Jogo -->
     <div id="game-container"></div>
+    <GameViewport :screen="gameScreen" @action="handleViewportAction" />
   </main>
 </template>
 
@@ -71,6 +124,13 @@ main {
   top: 0;
   left: 0;
   background-color: inherit;
+}
+
+.screen-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 30;
+  pointer-events: auto;
 }
 
 /* Tela de Loading */

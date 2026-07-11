@@ -21,7 +21,7 @@ const GamePuzzle = {
     totalDrops: 0,
     slowEffectUntil: 0,
     powerupTypes: ['powerup_combo', 'powerup_shield', 'powerup_slow'],
-    
+
     // Configurações por capítulo (T-303)
     difficulty: {
         cap1: { types: ['papel', 'plastico'], speed: 'slow', maxItems: 8, bins: ['papel', 'plastico'] },
@@ -114,7 +114,7 @@ const GamePuzzle = {
                 </div>
             </div>
         `;
-        
+
         const binsArea = document.getElementById('bins-area');
         this.config.bins.forEach(binType => {
             const binEl = document.createElement('div');
@@ -137,12 +137,12 @@ const GamePuzzle = {
             binEl.style.textShadow = binType === 'metal' ? 'none' : '1px 1px 2px #000';
             binEl.style.transition = 'transform 0.1s';
             binEl.innerHTML = `<span>${binType}</span>`;
-            
+
             // Acessibilidade: Teclado e ARIA
             binEl.tabIndex = 0;
             binEl.setAttribute('role', 'button');
             binEl.setAttribute('aria-label', 'Lixeira para ' + binType);
-            
+
             binEl.addEventListener('keydown', (e) => {
                 if (e.key === 'Enter' || e.key === ' ') {
                     e.preventDefault();
@@ -150,7 +150,7 @@ const GamePuzzle = {
                         GamePuzzle.handleDrop(window.selectedItemForKeyboard, binEl);
                         window.selectedItemForKeyboard = null;
                         document.querySelectorAll('.puzzle-item').forEach(item => {
-                            if(item.parentNode) item.style.boxShadow = '0 4px 8px rgba(0,0,0,0.3)';
+                            if (item.parentNode) item.style.boxShadow = '0 4px 8px rgba(0,0,0,0.3)';
                         });
                     }
                 }
@@ -231,9 +231,9 @@ const GamePuzzle = {
         itemEl.style.zIndex = 5;
 
         spawnArea.appendChild(itemEl);
-        
+
         this.setupDrag(itemEl);
-        
+
         if (!isBossThrow && !isPowerup) {
             this.itemsToSpawn--;
             this.updateHUD();
@@ -253,7 +253,7 @@ const GamePuzzle = {
                 return;
             }
             if (itemEl.style.cursor === 'grabbing') return; // não move se estiver arrastando
-            
+
             top += (this.chapter === 'cap5' ? 2 : 1);
             itemEl.style.top = top + 'px';
 
@@ -312,14 +312,14 @@ const GamePuzzle = {
             isDragging = false;
             itemEl.style.cursor = 'grab';
             itemEl.style.zIndex = '';
-            
+
             document.querySelectorAll('.bin').forEach(bin => {
                 bin.style.transform = 'scale(1)';
                 bin.style.boxShadow = 'none';
             });
-            
+
             const dropTarget = this.getBinUnderCursor(e.clientX, e.clientY);
-            
+
             if (dropTarget) {
                 this.handleDrop(itemEl, dropTarget);
             } else {
@@ -334,7 +334,7 @@ const GamePuzzle = {
         itemEl.addEventListener('pointerdown', onPointerDown);
         document.addEventListener('pointermove', onPointerMove);
         document.addEventListener('pointerup', onPointerUp);
-        
+
         itemEl.cleanupDrag = () => {
             document.removeEventListener('pointermove', onPointerMove);
             document.removeEventListener('pointerup', onPointerUp);
@@ -350,7 +350,7 @@ const GamePuzzle = {
     handleDrop(itemEl, binEl) {
         const itemType = itemEl.dataset.type;
         const binType = binEl.dataset.type;
-        
+
         // T-301: Validação
         if (itemType.startsWith('powerup_')) {
             this.handlePowerup(itemEl, itemType, binEl);
@@ -359,10 +359,10 @@ const GamePuzzle = {
         } else {
             this.handleError(itemEl, binEl);
         }
-        
+
         itemEl.cleanupDrag();
         itemEl.remove();
-        
+
         this.checkEndCondition();
     },
 
@@ -407,15 +407,15 @@ const GamePuzzle = {
         let multiplier = 1;
         if (this.combo >= 5) multiplier = 3;
         else if (this.combo >= 3) multiplier = 2;
-        
+
         const points = 10 * multiplier;
         this.score += points;
         this.marHealth = Math.min(100, this.marHealth + 2); // Mar melhora levemente
         this.lixaoThreat = Math.max(0, this.lixaoThreat - 5); // Lixão perde "vida"
-        
+
         binEl.classList.add('anim-pulse');
         setTimeout(() => binEl.classList.remove('anim-pulse'), 500);
-        
+
         this.updateHUD();
         this.showFloatingText(`+${points}`, binEl.getBoundingClientRect(), '#4CAF50');
 
@@ -437,11 +437,11 @@ const GamePuzzle = {
         // T-304: Erro quebra o combo
         this.combo = 0;
         this.marHealth = Math.max(0, this.marHealth - 5); // Penalidade leve
-        
+
         if (window.GameAudio) {
             GameAudio.playError();
         }
-        
+
         if (binEl) {
             binEl.classList.add('anim-shake'); // T-302: Lixeira "shake" no erro
             setTimeout(() => binEl.classList.remove('anim-shake'), 500);
@@ -449,7 +449,7 @@ const GamePuzzle = {
         } else if (droppedOffscreen) {
             this.showFloatingText('PERDIDO!', itemEl.getBoundingClientRect(), '#F44336');
         }
-        
+
         this.updateHUD();
     },
 
@@ -487,7 +487,7 @@ const GamePuzzle = {
         const successRate = this.totalDrops === 0 ? 1 : (this.successfulDrops / this.totalDrops);
         if (this.score < this.requiredScore) return `Você precisa de pelo menos ${this.requiredScore} pontos.`;
         if (this.marHealth < this.requiredMarHealth) return `O Mar precisa estar com ao menos ${this.requiredMarHealth}% de saúde.`;
-        if (this.requiredSuccessRate && successRate < this.requiredSuccessRate) return `Acertos insuficientes: ${(successRate*100).toFixed(0)}%.`; 
+        if (this.requiredSuccessRate && successRate < this.requiredSuccessRate) return `Acertos insuficientes: ${(successRate * 100).toFixed(0)}%.`;
         return 'Parabéns! Você completou o capítulo com sucesso.';
     },
 
@@ -495,7 +495,7 @@ const GamePuzzle = {
         const el = document.createElement('div');
         el.textContent = text;
         el.style.position = 'absolute';
-        el.style.left = rect.left + (rect.width/2) + 'px';
+        el.style.left = rect.left + (rect.width / 2) + 'px';
         el.style.top = rect.top + 'px';
         el.style.color = color;
         el.style.fontWeight = 'bold';
@@ -506,13 +506,13 @@ const GamePuzzle = {
         el.style.transition = 'all 1s ease-out';
         el.style.transform = 'translateX(-50%)';
         document.body.appendChild(el);
-        
+
         // Force reflow
         el.offsetHeight;
-        
+
         el.style.top = (rect.top - 60) + 'px';
         el.style.opacity = '0';
-        
+
         setTimeout(() => el.remove(), 1050);
     },
 
@@ -525,7 +525,7 @@ const GamePuzzle = {
             if (Date.now() < this.slowEffectUntil) {
                 delay *= 1.8;
             }
-            
+
             setTimeout(() => {
                 if (this.isPlaying) {
                     const batchSize = Math.min(this.config.spawnBatch || 1, this.itemsToSpawn);
@@ -545,7 +545,7 @@ const GamePuzzle = {
         this.bossTimer = setInterval(() => {
             if (!this.isPlaying) return;
             this.spawnItem(true);
-            
+
             const hud = document.getElementById('hud');
             this.showFloatingText('Lixão Atacou!', hud.getBoundingClientRect(), '#F44336');
         }, 5000);
@@ -554,13 +554,13 @@ const GamePuzzle = {
     endPuzzle() {
         this.isPlaying = false;
         if (this.bossTimer) clearInterval(this.bossTimer);
-        
+
         GameState.data.totalScore += this.score;
         GameState.save();
 
         const passed = this.determinePass();
         const feedback = this.getPassFeedback();
-        GameEngine.lastPuzzleOutcome = {
+        const outcome = {
             passed,
             chapter: this.chapter,
             score: this.score,
@@ -569,8 +569,12 @@ const GamePuzzle = {
             feedback
         };
 
+        if (typeof GameEngine !== 'undefined' && GameEngine) {
+            GameEngine.lastPuzzleOutcome = outcome;
+            GameEngine.changeState(GameEngine.STATES.RESULTS);
+        }
+
         console.log(`Capítulo concluído! Pontos: ${this.score}, Saúde final do Mar: ${this.marHealth}%, Passou: ${passed}`);
-        GameEngine.changeState(GameEngine.STATES.RESULTS);
     }
 };
 
