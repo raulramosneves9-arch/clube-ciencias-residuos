@@ -30,7 +30,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <main>
+  <main :class="themeClass">
     <!-- Tela de Loading Premium -->
     <Transition name="fade">
       <div v-if="isLoading" class="loading-overlay">
@@ -70,6 +70,7 @@ main {
   position: absolute;
   top: 0;
   left: 0;
+  background-color: inherit;
 }
 
 /* Tela de Loading */

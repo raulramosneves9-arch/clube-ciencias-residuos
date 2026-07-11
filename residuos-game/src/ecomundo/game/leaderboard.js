@@ -2,6 +2,12 @@
 
 const LEADERBOARD_KEY = 'ecomundo_leaderboard';
 const MAX_ENTRIES = 10;
+const SAMPLE_ENTRIES = [
+    { username: 'Maya', score: 980, date: '11/07/2026' },
+    { username: 'Téo', score: 860, date: '10/07/2026' },
+    { username: 'Lia', score: 740, date: '09/07/2026' },
+    { username: 'Nina', score: 620, date: '08/07/2026' }
+];
 
 const GameLeaderboard = {
     data: [],
@@ -13,10 +19,12 @@ const GameLeaderboard = {
             if (saved) {
                 this.data = JSON.parse(saved);
                 console.log("Ranking carregado:", this.data);
+            } else {
+                this.data = SAMPLE_ENTRIES;
             }
         } catch (e) {
             console.error("Erro ao carregar o ranking:", e);
-            this.data = [];
+            this.data = SAMPLE_ENTRIES;
         }
     },
 
@@ -76,21 +84,22 @@ const GameLeaderboard = {
     // Retorna HTML formatado do ranking para exibição
     getHTML() {
         if (this.data.length === 0) {
-            return '<p style="text-align: center; color: #999;">Nenhum score registrado ainda. Seja o primeiro!</p>';
+            return '<p class="leaderboard-empty">Nenhum score registrado ainda. Seja o primeiro!</p>';
         }
 
-        let html = '<table class="leaderboard-table" style="width: 100%; margin: 20px 0; border-collapse: collapse;">';
-        html += '<thead style="background-color: #2E7D32; color: white;">';
-        html += '<tr><th style="padding: 10px; border: 1px solid #ddd;">Posição</th><th style="padding: 10px; border: 1px solid #ddd;">Jogador</th><th style="padding: 10px; border: 1px solid #ddd;">Pontos</th><th style="padding: 10px; border: 1px solid #ddd;">Data</th></tr>';
-        html += '</thead><tbody>';
+        let html = '<table class="leaderboard-table">';
+        html += '<thead><tr><th>Posição</th><th>Jogador</th><th>Pontos</th><th>Data</th></tr></thead>';
+        html += '<tbody>';
 
         this.data.forEach((entry, index) => {
-            const bgColor = index % 2 === 0 ? '#f9f9f9' : '#ffffff';
-            html += `<tr style="background-color: ${bgColor};">`;
-            html += `<td style="padding: 10px; border: 1px solid #ddd; text-align: center; font-weight: bold;">${index + 1}º</td>`;
-            html += `<td style="padding: 10px; border: 1px solid #ddd;">${entry.username}</td>`;
-            html += `<td style="padding: 10px; border: 1px solid #ddd; text-align: center; font-weight: bold;">${entry.score}</td>`;
-            html += `<td style="padding: 10px; border: 1px solid #ddd; text-align: center;">${entry.date}</td>`;
+            const medal = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : '';
+            const rowClass = index < 3 ? `leaderboard-row medal-${index + 1}` : 'leaderboard-row';
+
+            html += `<tr class="${rowClass}">`;
+            html += `<td class="leaderboard-rank"><span class="leaderboard-rank-badge">${medal ? `${medal} ${index + 1}º` : `${index + 1}º`}</span></td>`;
+            html += `<td class="leaderboard-player">${entry.username}</td>`;
+            html += `<td class="leaderboard-score">${entry.score}</td>`;
+            html += `<td class="leaderboard-date">${entry.date}</td>`;
             html += '</tr>';
         });
 
