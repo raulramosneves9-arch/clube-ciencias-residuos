@@ -178,20 +178,33 @@ const GameEngine = {
         });
     },
 
-    startGame() {
-        // If there is existing progress, ask the player before resetting
+    hasExistingProgress() {
         try {
-            const hasProgress = !!(GameState && GameState.data && GameState.data.currentChapter > 1);
-            if (hasProgress) {
-                const confirmReset = confirm('Existe um progresso salvo. Deseja começar um novo jogo e apagar o progresso atual? Clique OK para reiniciar, Cancelar para continuar o jogo salvo.');
-                if (!confirmReset) {
-                    if (typeof GameAudio !== 'undefined') GameAudio.startMusic();
-                    this.changeState(this.STATES.NARRATIVE);
-                    return;
-                }
-            }
+            const saved = localStorage.getItem('ecomundo_save');
+            if (!saved) return false;
+
+            const parsed = JSON.parse(saved);
+            if (!parsed || typeof parsed !== 'object') return false;
+
+            const currentChapter = typeof parsed.currentChapter === 'number' ? parsed.currentChapter : 1;
+            const totalScore = typeof parsed.totalScore === 'number' ? parsed.totalScore : 0;
+            const username = typeof parsed.currentUsername === 'string' ? parsed.currentUsername.trim() : '';
+
+            return currentChapter > 1 || totalScore > 0 || !!username;
         } catch (e) {
             console.error('Erro ao verificar progresso salvo:', e);
+            return false;
+        }
+    },
+
+    startGame() {
+        if (this.hasExistingProgress()) {
+            const confirmReset = confirm('Existe um progresso salvo. Deseja começar um novo jogo e apagar o progresso atual? Clique OK para reiniciar, Cancelar para continuar o jogo salvo.');
+            if (!confirmReset) {
+                if (typeof GameAudio !== 'undefined') GameAudio.startMusic();
+                this.changeState(this.STATES.NARRATIVE);
+                return;
+            }
         }
 
         GameState.reset();
@@ -224,6 +237,11 @@ const GameEngine = {
     },
 
     resetGame() {
+        if (this.hasExistingProgress()) {
+            const confirmReset = confirm('Isso apagará o progresso salvo atual. Deseja continuar?');
+            if (!confirmReset) return;
+        }
+
         GameState.reset();
         this.changeState(this.STATES.MENU);
     },
