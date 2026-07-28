@@ -23,7 +23,9 @@ document.addEventListener("DOMContentLoaded", () => {
     window.addEventListener('load', () => {
         // Pequeno delay para garantir que a tela de loading seja vista e suave
         setTimeout(() => {
-            GameEngine.init();
+            if (window.GameEngine && window.EcoViewController) {
+                GameEngine.init();
+            }
         }, 1500);
     });
 });

@@ -64,6 +64,10 @@ onMounted(() => {
     clearScreen: () => setGameScreen({ type: 'NONE' })
   }
 
+  if (window.GameEngine && window.GameEngine.pendingScreen) {
+    window.GameEngine.renderViewportScreen(window.GameEngine.pendingScreen);
+  }
+
   const initGame = () => {
     setTimeout(() => {
       isLoading.value = false
@@ -124,6 +128,7 @@ main {
 #game-container {
   width: 100%;
   min-height: 100dvh;
+  height: 100dvh;
   position: absolute;
   top: 0;
   left: 0;

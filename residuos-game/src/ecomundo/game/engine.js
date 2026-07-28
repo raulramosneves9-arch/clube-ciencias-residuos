@@ -11,8 +11,10 @@ const GameEngine = {
         ABOUT: 'ABOUT'
     },
 
+    initialized: false,
     currentState: null,
     lastPuzzleOutcome: null,
+    pendingScreen: null,
 
     getNormalizedPuzzleOutcome(outcome = this.lastPuzzleOutcome) {
         if (!outcome || typeof outcome !== 'object') {
@@ -36,7 +38,21 @@ const GameEngine = {
     },
 
     init() {
+        if (this.initialized) {
+            console.warn("GameEngine já inicializado. Ignorando inicialização duplicada.");
+            return;
+        }
+
+        this.initialized = true;
         console.log("GameEngine inicializada.");
+
+        if (typeof GameHUD !== 'undefined') {
+            GameHUD.init();
+        }
+
+        if (typeof GameNarrative !== 'undefined') {
+            GameNarrative.init();
+        }
 
         // Carrega o leaderboard do localStorage
         if (typeof GameLeaderboard !== 'undefined') {
@@ -296,6 +312,9 @@ const GameEngine = {
     renderViewportScreen(screen) {
         if (window.EcoViewController && typeof window.EcoViewController.setScreen === 'function') {
             window.EcoViewController.setScreen(screen);
+            this.pendingScreen = null;
+        } else {
+            this.pendingScreen = screen;
         }
     },
 

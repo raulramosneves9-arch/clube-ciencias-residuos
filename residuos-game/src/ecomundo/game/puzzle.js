@@ -61,19 +61,20 @@ const GamePuzzle = {
         const externalData = chapterData && chapterData.puzzles ? chapterData.puzzles : null;
 
         if (externalData) {
+            const fallbackConfig = this.difficulty[this.chapter] || this.difficulty['cap1'];
             this.config = {
-                types: externalData.itemTypes,
-                speed: externalData.speed,
-                maxItems: externalData.itemCount,
-                spawnBatch: externalData.spawnBatch || 1,
-                isBoss: externalData.bossMechanic || false,
-                bins: externalData.itemTypes
+                types: externalData.itemTypes || fallbackConfig.types,
+                speed: externalData.speed || fallbackConfig.speed,
+                maxItems: typeof externalData.itemCount === 'number' ? externalData.itemCount : fallbackConfig.maxItems,
+                spawnBatch: externalData.spawnBatch || fallbackConfig.spawnBatch || 1,
+                isBoss: Boolean(externalData.bossMechanic),
+                bins: externalData.itemTypes || fallbackConfig.bins
             };
-            this.requiredScore = externalData.requiredScore || 0;
-            this.requiredMarHealth = externalData.requiredMarHealth || 0;
-            this.requiredSuccessRate = externalData.requiredSuccessRate || 0;
+            this.requiredScore = typeof externalData.requiredScore === 'number' ? externalData.requiredScore : 0;
+            this.requiredMarHealth = typeof externalData.requiredMarHealth === 'number' ? externalData.requiredMarHealth : 0;
+            this.requiredSuccessRate = typeof externalData.requiredSuccessRate === 'number' ? externalData.requiredSuccessRate : 0;
         } else {
-            this.config = this.difficulty[this.chapter] || this.difficulty['cap1'];
+            this.config = { ...this.difficulty[this.chapter] } || { ...this.difficulty['cap1'] };
             this.config.spawnBatch = this.config.spawnBatch || 1;
             this.requiredScore = 0;
             this.requiredMarHealth = 0;
