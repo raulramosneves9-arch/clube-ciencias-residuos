@@ -71,6 +71,8 @@ const GameEngine = {
 
         setTimeout(() => {
             container.innerHTML = '';
+            container.style.backgroundImage = '';
+            container.style.backgroundColor = '';
             if (typeof GameHUD !== 'undefined') GameHUD.hide();
 
             switch (this.currentState) {
@@ -81,6 +83,7 @@ const GameEngine = {
                     this.renderUsername();
                     break;
                 case this.STATES.NARRATIVE:
+                    this.clearViewportScreen();
                     if (typeof GameNarrative !== 'undefined') {
                         GameNarrative.start(GameState.data.currentChapter);
                     } else {
@@ -88,6 +91,7 @@ const GameEngine = {
                     }
                     break;
                 case this.STATES.PUZZLE:
+                    this.clearViewportScreen();
                     if (typeof GamePuzzle !== 'undefined') {
                         GamePuzzle.start(GameState.data.currentChapter);
                     } else {
@@ -283,6 +287,10 @@ const GameEngine = {
 
     renderAbout() {
         this.renderViewportScreen({ type: this.STATES.ABOUT });
+    },
+
+    clearViewportScreen() {
+        this.renderViewportScreen({ type: 'NONE' });
     },
 
     renderViewportScreen(screen) {

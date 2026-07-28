@@ -53,6 +53,10 @@ const GamePuzzle = {
 
     start(chapterNumber) {
         this.chapter = 'cap' + chapterNumber;
+        if (typeof DialogUI !== 'undefined') {
+            DialogUI.hide();
+        }
+
         const chapterData = window.ChaptersData && window.ChaptersData[this.chapter] ? window.ChaptersData[this.chapter] : null;
         const externalData = chapterData && chapterData.puzzles ? chapterData.puzzles : null;
 

@@ -19,13 +19,18 @@ const GameNarrative = {
         }
 
         console.log(`Iniciando capítulo: ${this.currentChapterData.title}`);
-        
-        // Define cenário
+
         const container = document.getElementById('game-container');
-        container.style.backgroundImage = `url('assets/scenes/${this.currentChapterData.scene}.svg')`;
-        container.style.backgroundSize = 'cover';
-        container.style.backgroundPosition = 'center';
-        
+        if (container) {
+            container.style.backgroundImage = `url('assets/scenes/${this.currentChapterData.scene}.svg')`;
+            container.style.backgroundSize = 'cover';
+            container.style.backgroundPosition = 'center';
+        }
+
+        if (typeof DialogUI !== 'undefined') {
+            DialogUI.hide();
+        }
+
         this.playOpeningDialogues();
     },
 
