@@ -106,20 +106,24 @@ html, body, #app {
   margin: 0;
   padding: 0;
   width: 100%;
-  height: 100%;
+  min-height: 100%;
   overflow: hidden;
   background-color: #f0f0f0;
 }
 
+body {
+  min-height: 100dvh;
+}
+
 main {
   width: 100%;
-  height: 100%;
+  min-height: 100dvh;
   position: relative;
 }
 
 #game-container {
-  width: 100vw;
-  height: 100vh;
+  width: 100%;
+  min-height: 100dvh;
   position: absolute;
   top: 0;
   left: 0;
@@ -129,6 +133,8 @@ main {
 .screen-overlay {
   position: absolute;
   inset: 0;
+  width: 100%;
+  min-height: 100dvh;
   z-index: 30;
   pointer-events: auto;
 }
@@ -139,7 +145,7 @@ main {
   top: 0;
   left: 0;
   width: 100%;
-  height: 100%;
+  min-height: 100dvh;
   background: linear-gradient(135deg, #2E7D32 0%, #1B5E20 100%);
   display: flex;
   align-items: center;
@@ -147,10 +153,16 @@ main {
   z-index: 9999;
   color: white;
   text-align: center;
+  padding: 24px;
+  box-sizing: border-box;
+}
+
+.loading-content {
+  max-width: min(90vw, 560px);
 }
 
 .loading-content h1 {
-  font-size: 4rem;
+  font-size: clamp(2.2rem, 5vw, 4rem);
   margin-bottom: 2rem;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   text-shadow: 0 4px 10px rgba(0,0,0,0.3);
@@ -167,7 +179,7 @@ main {
 }
 
 .tip-text {
-  font-size: 1.2rem;
+  font-size: clamp(1rem, 2.6vw, 1.2rem);
   font-style: italic;
   max-width: 500px;
   opacity: 0.9;
@@ -186,5 +198,15 @@ main {
 
 .fade-leave-to {
   opacity: 0;
+}
+
+@media (max-width: 768px) {
+  .loading-overlay {
+    padding: 20px;
+  }
+
+  .tip-text {
+    padding: 0;
+  }
 }
 </style>
