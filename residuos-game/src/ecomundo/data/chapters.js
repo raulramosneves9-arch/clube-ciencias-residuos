@@ -15,7 +15,7 @@ const ChaptersData = {
         puzzles: {
             difficulty: 1,
             itemTypes: ["papel", "plastico"],
-            itemCount: 20,
+            itemCount: 9,
             speed: "slow",
             spawnBatch: 2,
             requiredScore: 100,
@@ -39,7 +39,7 @@ const ChaptersData = {
         puzzles: {
             difficulty: 2,
             itemTypes: ["papel", "plastico", "metal", "vidro"],
-            itemCount: 28,
+            itemCount: 10,
             hasTimer: true,
             speed: "medium",
             spawnBatch: 2,
@@ -64,7 +64,7 @@ const ChaptersData = {
         puzzles: {
             difficulty: 3,
             itemTypes: ["papel", "plastico", "metal", "vidro", "organico"],
-            itemCount: 32,
+            itemCount: 12,
             speed: "medium",
             movement: "wave",
             spawnBatch: 3,
@@ -89,7 +89,7 @@ const ChaptersData = {
         puzzles: {
             difficulty: 4,
             itemTypes: ["papel", "plastico", "metal", "vidro", "organico", "rejeito"],
-            itemCount: 40,
+            itemCount: 15,
             speed: "fast",
             comboSystem: true,
             spawnBatch: 3,
@@ -114,7 +114,7 @@ const ChaptersData = {
         puzzles: {
             difficulty: 5,
             itemTypes: ["papel", "plastico", "metal", "vidro", "organico", "rejeito", "eletronico"],
-            itemCount: 20,
+            itemCount: 19,
             speed: "fast",
             comboSystem: true,
             bossMechanic: true
